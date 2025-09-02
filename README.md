@@ -18,7 +18,7 @@ private async Task CollectModDetailAndDownload(PublishedFileId_t fileId, Cancell
     var queryHandle = SteamUGC.CreateQueryUGCDetailsRequest(new PublishedFileId_t[] {fileId}, 1);
 
     var result = await SteamUGC.SendQueryUGCRequest(queryHandle)
-        .ToTaskSimple<SteamUGCQueryCompleted_t>(ct);
+        .ToTask<SteamUGCQueryCompleted_t>(ct);
 
     /* use `result` from await above */
     if (!SteamUGC.GetQueryUGCDetails(result.m_handle, 0, out SteamUGCDetails_t details))
