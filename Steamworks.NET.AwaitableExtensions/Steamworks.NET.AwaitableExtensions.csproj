@@ -1,13 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.1;net8.0</TargetFrameworks>
+		<!-- Edit next line to make your own variant package. -->
+		<TargetFrameworks>net8.0</TargetFrameworks>
 		<!-- Any of OS macro will work, just pick the first ocurred one -->
 		<DefineConstants>STEAMWORKS_WIN</DefineConstants>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 
+
+
 	<ItemGroup>
-		<PackageReference Include="Steamworks.NET" Version="2024.8.0" />
+		<PackageReference Include="Steamworks.NET.AnyCPU">
+			<Version>2025.8.19-a</Version>
+		</PackageReference>
+		<PackageReference Include="Facepunch.Steamworks.Dll" Version="1.62.0" />
 	</ItemGroup>
 
 </Project>

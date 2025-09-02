@@ -1,9 +1,8 @@
 ﻿// This file is provided under The MIT License as part of Steamworks.NET.
-// Copyright (c) 2013-2025 Riley Labrecque
+// Copyright (c) 2025-2025 Akainnnnn
 // Please see the included LICENSE.txt for additional information.
 
 // This file is provided as a sample, copy into your project if you need.
-
 
 #if !(UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_STANDALONE_OSX || STEAMWORKS_WIN || STEAMWORKS_LIN_OSX)
 #define DISABLESTEAMWORKS
@@ -22,25 +21,47 @@ using System.Runtime.Serialization;
 
 namespace Steamworks.NET.AwaitableExtensions
 {
+	/// <summary>
+	/// Errors happened during Steam call-result. 
+	/// </summary>
 	[Serializable]
 	public class SteamCallResultException : Exception
 	{
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="message"></param>
+		/// <param name="failureReason"></param>
 
 		public SteamCallResultException(string message, ESteamAPICallFailure failureReason) : base(message)
 		{
 			FailureReason = failureReason;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="message"></param>
+		/// <param name="failureReason"></param>
+		/// <param name="innerException"></param>
 		public SteamCallResultException(string message, ESteamAPICallFailure failureReason, Exception innerException) : base(message, innerException)
 		{
 			FailureReason = failureReason;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="info"></param>
+		/// <param name="context"></param>
 		[Obsolete("Unused since .NET Core, one of runtime running our standalone builds")]
 		protected SteamCallResultException(SerializationInfo info, StreamingContext context) : base(info, context)
 		{
 		}
 
+		/// <summary>
+		/// Detailed failure reason.
+		/// </summary>
 		public ESteamAPICallFailure FailureReason { get; private set; }
 	}
 }
