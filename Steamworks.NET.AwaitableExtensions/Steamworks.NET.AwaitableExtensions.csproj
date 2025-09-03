@@ -12,9 +12,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="Steamworks.NET.AnyCPU">
-			<Version>2025.8.19-a</Version>
+			<Version>2025.162.1</Version>
 		</PackageReference>
-		<PackageReference Include="Facepunch.Steamworks.Dll" Version="1.62.0" />
 	</ItemGroup>
 
 </Project>

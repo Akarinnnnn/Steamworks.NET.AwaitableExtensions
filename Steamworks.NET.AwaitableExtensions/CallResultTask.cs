@@ -128,7 +128,7 @@ namespace Steamworks.NET.AwaitableExtensions
 			{
 				SteamAPICall_t handle = Handle;
 				ESteamAPICallFailure failureReason = SteamUtils.GetAPICallFailureReason(handle);
-				throw new SteamCallResultException($"Steam API call(result handle {handle}) failed, reason is {failureReason}", failureReason);
+				throw new SteamCallResultException($"Steam API call-result(handle {handle}, type {typeof(T)}) failed, reason is {failureReason}", failureReason);
 			}
 
 			return result;
@@ -205,7 +205,6 @@ namespace Steamworks.NET.AwaitableExtensions
 			}
 		}
 
-#if false
 		/// <summary>
 		/// Reset completed <see cref="CallResultTask{T}"/> for next awaiting.
 		/// </summary>
@@ -240,8 +239,6 @@ namespace Steamworks.NET.AwaitableExtensions
 
 			return this;
 		}
-
-#endif
 	}
 }
 
