@@ -5,8 +5,21 @@
 		<TargetFrameworks>net8.0</TargetFrameworks>
 		<!-- Any of OS macro will work, just pick the first ocurred one -->
 		<DefineConstants>STEAMWORKS_WIN</DefineConstants>
+		
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<IncludeSymbols>true</IncludeSymbols>
+		
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/Akarinnnnn/Steamworks.NET.AwaitableExtensions.git</RepositoryUrl>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Include="..\README.md" Link="README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
 
 
 
