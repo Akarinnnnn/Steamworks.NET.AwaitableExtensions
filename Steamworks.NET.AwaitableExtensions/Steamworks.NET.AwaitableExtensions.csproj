@@ -5,7 +5,12 @@
 		<TargetFrameworks>net8.0</TargetFrameworks>
 		<!-- Any of OS macro will work, just pick the first ocurred one -->
 		<DefineConstants>STEAMWORKS_WIN</DefineConstants>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageProjectUrl>https://github.com/Akarinnnnn/Steamworks.NET.AwaitableExtensions</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Akarinnnnn/Steamworks.NET.AwaitableExtensions.git</RepositoryUrl>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<PackageTags>steamworks steamapi stemaworks.net async await</PackageTags>
 	</PropertyGroup>
 
 
@@ -14,6 +19,7 @@
 		<PackageReference Include="Steamworks.NET.AnyCPU">
 			<Version>2025.162.4</Version>
 		</PackageReference>
+		<Content Include="../README.md" Pack="true" PackagePath="README.md" />
 	</ItemGroup>
 
 </Project>
