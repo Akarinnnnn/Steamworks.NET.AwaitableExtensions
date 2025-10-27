@@ -12,7 +12,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Steamworks.NET.AnyCPU">
-			<Version>2025.162.1</Version>
+			<Version>2025.162.4</Version>
 		</PackageReference>
 	</ItemGroup>
 
