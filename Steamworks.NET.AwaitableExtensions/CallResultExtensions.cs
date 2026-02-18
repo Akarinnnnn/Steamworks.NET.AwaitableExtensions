@@ -19,7 +19,6 @@
 
 using System;
 using System.Threading;
-using static System.Collections.Specialized.BitVector32;
 
 namespace Steamworks.NET.AwaitableExtensions
 {
@@ -29,7 +28,8 @@ namespace Steamworks.NET.AwaitableExtensions
 	public static class CallResultExtensions
 	{
 		/// <summary>
-		/// Convert call-result handle to a Task like wrapper, to be <see langword="await" />. <see cref="SynchronizationContext.Current"/> is not respected.
+		/// Convert call-result handle to a Task like wrapper, to be <see langword="await" />.
+		/// <see cref="SynchronizationContext.Current"/> and <see cref="AsyncLocal{T}"/> are not respected by default.
 		/// </summary>
 		/// <example>
 		/// await ToTask&lt;SteamUGCQueryCompleted_t&gt;(handle, cancellationToken);
@@ -48,6 +48,7 @@ namespace Steamworks.NET.AwaitableExtensions
 
 		/// <summary>
 		/// Convert call-result handle to a Task like wrapper, to be <see langword="await" />. Continuation will run on .NET thread pool.
+		/// <see cref="SynchronizationContext.Current"/> and <see cref="AsyncLocal{T}"/> are not respected by default.
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="handle">Steam call-result handle will be associated to this awaiting.</param>
@@ -80,7 +81,8 @@ namespace Steamworks.NET.AwaitableExtensions
 			if (syncCtx == null)
 				return GoThreadPool<T>(handle, cancellationToken);
 
-			return new CallResultTask<T>(handle, (action) => syncCtx.Post((s) => ((Action)s!)(), action), cancellationToken);
+			return new CallResultTask<T>(handle, (action) => syncCtx.Post((s) => ((Action)s!)(), action), cancellationToken)
+				.SetCaptureExecutionContext(true);
 		}
 	}
 }

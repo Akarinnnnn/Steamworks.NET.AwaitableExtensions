@@ -64,7 +64,9 @@ public CallResultTask<T> ToPooledTask<T>(this SteamAPICall_t handle, Cancellatio
     where T : struct
 {
     // 1. Get task from pool. Assume you created a task pool called `CallResultTaskPool`.
-    var task = CallResultTaskPool.GetTask<SteamUGCQueryCompleted_t>();
+    var task = CallResultTaskPool.GetTask<T>();
+	// if you know you will use `AsyncLocal` or something else that need `ExecutionContext` support,
+	// you have to use task.SetCaptureExecutionContext(true) to work properly
 
     // 2. Reset task for current use
     return task.ResetForNextCall(handle, null, cancellationToken);
