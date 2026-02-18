@@ -52,6 +52,19 @@ namespace Steamworks.NET.AwaitableExtensions
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="message"></param>
+		/// <param name="failure"></param>
+		/// <param name="handle"></param>
+		/// <param name="innerException"></param>
+		public SteamCallResultException(string message, ESteamAPICallFailure failure, SteamAPICall_t handle, Exception? innerException = default): base(message, innerException)
+		{
+			FailureReason = failure;
+			SteamAPICallHandle = handle;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
 		/// <param name="info"></param>
 		/// <param name="context"></param>
 		[Obsolete("Unused since .NET Core, one of runtime running our standalone builds")]
@@ -62,7 +75,12 @@ namespace Steamworks.NET.AwaitableExtensions
 		/// <summary>
 		/// Detailed failure reason.
 		/// </summary>
-		public ESteamAPICallFailure FailureReason { get; private set; }
+		public ESteamAPICallFailure FailureReason { get; }
+		
+		/// <summary>
+		/// The Steam API call handle that failed.
+		/// </summary>
+		public SteamAPICall_t SteamAPICallHandle { get; }
 	}
 }
 

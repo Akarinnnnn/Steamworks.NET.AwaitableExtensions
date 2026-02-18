@@ -40,11 +40,18 @@ namespace Steamworks.NET.AwaitableExtensions
 		private Action<Action> schedulerDelegate;
 
 		private int getResultInvokedInterlocked = 0;
-
+		
+		private bool isCaptureExecutionContext = false;
 		private readonly ManualResetEventSlim onCompletedRanEvent;
 		private readonly ManualResetEventSlim receivedResultEvent;
 		private readonly Action cachedOnCancelled;
 		private readonly CallResult<T>.APIDispatchDelegate cachedConvertResult;
+#if STEAMWORKS_SDK_FEATURE_NULLABLE
+		private ExecutionContext?
+#else
+		private ExecutionContext
+#endif
+		executionContext;
 
 #if STEAMWORKS_SDK_FEATURE_NULLABLE
 		private Action?
@@ -128,7 +135,7 @@ namespace Steamworks.NET.AwaitableExtensions
 			{
 				SteamAPICall_t handle = Handle;
 				ESteamAPICallFailure failureReason = SteamUtils.GetAPICallFailureReason(handle);
-				throw new SteamCallResultException($"Steam API call-result(handle {handle}, type {typeof(T)}) failed, reason is {failureReason}", failureReason);
+				throw new SteamCallResultException($"Steam API call-result(handle {handle}, type {typeof(T)}) failed, reason is {failureReason}", failureReason, handle);
 			}
 
 			return result;
@@ -142,6 +149,11 @@ namespace Steamworks.NET.AwaitableExtensions
 		public void OnCompleted(Action action)
 		{
 			continuation = action;
+			if (isCaptureExecutionContext)
+			{
+				executionContext = ExecutionContext.Capture();
+			}
+
 
 			onCompletedRanEvent.Set();
 
@@ -189,11 +201,27 @@ namespace Steamworks.NET.AwaitableExtensions
 				// already cancelled and will be handled by GetResult(). Don't let it leak to outside.
 				// just continue dispatching.
 			}
+
 			if (Interlocked.CompareExchange(ref getResultInvokedInterlocked, 1, 0) != 0)
 			{
 				return;
 			}
 
+			// If execution context is captured, run continuation in captured execution context, otherwise run directly.
+			if (executionContext == null)
+			{
+				DoActualInvokeContinuation(null);
+			}
+			else
+			{
+				// It is possible that dispatch delegate objects reduce to 1, by cache it into a instance field, 
+				// but not now. I don't have enough data to determine whether it's necessary, and it can be optimized later if needed.
+				ExecutionContext.Run(executionContext, DoActualInvokeContinuation, null);
+			}
+		}
+
+		private void DoActualInvokeContinuation(object? _)
+		{
 			if (ReferenceEquals(schedulerDelegate, DefaultSchedulerDelegate))
 			{
 				continuation?.Invoke();
@@ -206,8 +234,34 @@ namespace Steamworks.NET.AwaitableExtensions
 		}
 
 		/// <summary>
+		///  Set whether to capture current <see cref="ExecutionContext"/> when invoking user callback.
+		///  Capturing <see cref="ExecutionContext"/> may cause performance regression, but can be necessary for some cases,
+		///  such as when user callback accesses <see cref="AsyncLocal{T}"/>.
+		/// </summary>
+		/// <param name="isCapture"></param>
+		/// <returns></returns>
+		public CallResultTask<T> SetCaptureExecutionContext(bool isCapture)
+		{
+			isCaptureExecutionContext = isCapture;
+			return this;
+		}
+
+		/// <summary>
 		/// Reset completed <see cref="CallResultTask{T}"/> for next awaiting.
 		/// </summary>
+		/// <remarks>
+		/// This method is designed for reusing <see cref="CallResultTask{T}"/> for multiple times to avoid unnecessary allocations. 
+		/// If you don't care about allocations and want to use <see cref="CallResultTask{T}"/> in fire-and-forget way,
+		/// just create new instance when needed.<br/>
+		/// Note that <see cref="ResetForNextCall"/> can only be called after current pending operation is completed, otherwise it will throw <see cref="InvalidOperationException"/>.<br/>
+		/// Resetting a <see cref="CallResultTask{T}"/> will reset whether to capture <see cref="ExecutionContext"/>.
+		/// Resetting <see cref="ExecutionContext"/> capture state prevents context leakage.
+		/// In high-concurrency object pool reuse scenarios, if a previous operation captured 
+		/// <see cref="ExecutionContext"/> for specific needs and the next operation does not,
+		/// residual capture settings may cause continuations to execute in the wrong context,
+		/// leading to hard-to-trace <see cref="AsyncLocal{T}"/> pollution issues.
+		/// Explicitly resetting to default ensures lifecycle isolation for each operation.
+		/// </remarks>
 		/// <param name="handle">New call-result handle</param>
 		/// <param name="schedulerDelegate">Optional. Control where to run continuation. Pass <see langword="null"/> to use previous scheduler delegate.</param>
 		/// <param name="cancellationToken"></param>
@@ -226,6 +280,8 @@ namespace Steamworks.NET.AwaitableExtensions
 
 			this.schedulerDelegate = schedulerDelegate ?? this.schedulerDelegate;
 			this.cancellationToken = cancellationToken;
+			executionContext = null;
+			isCaptureExecutionContext = false;
 
 			receivedResultEvent.Reset();
 			onCompletedRanEvent.Reset();
